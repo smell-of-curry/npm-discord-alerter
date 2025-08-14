@@ -88,7 +88,7 @@ export async function sendDiscord(
           name: npmUserName || "Unknown",
           icon_url:
             npmUserData?.avatar ||
-            `https://avatars.githubusercontent.com/u/${npmUserData?.name}?v=4`,
+            `https://avatars.githubusercontent.com/u/${npmUserName}?v=4`,
         },
         title,
         description,
