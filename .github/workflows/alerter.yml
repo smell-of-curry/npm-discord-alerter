@@ -13,6 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Ensure state directory exists
+        run: mkdir -p .state
+
       - name: Restore previous state artifact (if available)
         uses: dawidd6/action-download-artifact@v3
         with:
@@ -21,7 +24,7 @@ jobs:
           name: state
           workflow_conclusion: success
           if_no_artifact_found: warn
-          path: .
+          path: .state
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -50,10 +53,17 @@ jobs:
         run: |
           echo "State files:" && ls -la .state || echo ".state not found"
 
+      - name: Verify files before upload
+        if: always()
+        run: |
+          echo "Verifying .state contents" && find .state -type f -maxdepth 2 -print || true
+
       - name: Upload state artifact
         uses: actions/upload-artifact@v4
         with:
           name: state
-          path: .state
+          path: |
+            ./.state/*
+            ./.state/**
           if-no-files-found: ignore
           retention-days: 90
