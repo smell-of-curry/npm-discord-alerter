@@ -81,14 +81,20 @@ export async function sendDiscord(
   const npmUserName = version._npmUser?.name;
   const npmUserData = npmUserName ? await npmUser(npmUserName) : null;
 
+  let authorIconUrl = npmUserData?.avatar;
+  if (!authorIconUrl && npmUserData?.github) {
+    authorIconUrl = `https://avatars.githubusercontent.com/u/${npmUserName}?v=4`;
+  } else if (!authorIconUrl) {
+    authorIconUrl =
+      "https://raw.githubusercontent.com/smell-of-curry/npm-discord-alerter/refs/heads/main/images/npm-logo.png";
+  }
+
   const payload = {
     embeds: [
       {
         author: {
           name: npmUserName || "Unknown",
-          icon_url:
-            npmUserData?.avatar ||
-            `https://avatars.githubusercontent.com/u/${npmUserName}?v=4`,
+          icon_url: authorIconUrl,
         },
         title,
         description,
@@ -97,7 +103,7 @@ export async function sendDiscord(
       },
     ],
   };
-  
+
   await axios.post(webhookUrl, payload, {
     headers: { "Content-Type": "application/json" },
     timeout: 15000,
