@@ -28,6 +28,9 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           PACKAGES_TO_MONITOR: ${{ vars.PACKAGES_TO_MONITOR }}
+          DISCORD_TITLE_TEMPLATE: ${{ vars.DISCORD_TITLE_TEMPLATE }}
+          DISCORD_DESCRIPTION_TEMPLATE: ${{ vars.DISCORD_DESCRIPTION_TEMPLATE }}
+          DISCORD_URL_TEMPLATE: ${{ vars.DISCORD_URL_TEMPLATE }}
         run: |
           node dist/index.js
 

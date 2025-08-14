@@ -1,6 +1,6 @@
-# npm → Discord (Template)
+# Npm to Discord alerter (Template)
 
-Monitor multiple npm packages and tags and post updates to a Discord channel via webhook. Use this as a template repo; set your variables/secrets and it will notify automatically.
+Monitor multiple npm packages and tags and post updates to a Discord channel via webhook. Use this as a template repo; set your variables/secrets and it will notify automatically. You can fully customize the Discord message via templates.
 
 ## Quick start
 
@@ -24,9 +24,23 @@ Monitor multiple npm packages and tags and post updates to a Discord channel via
      ```
    - Supported tags: anything resolvable on the npm registry (e.g., `latest`, `beta`, custom dist-tags).
 
-4. Enable workflow runs.
+4. (Optional) Customize the Discord message with templates.
+   - Settings → Secrets and variables → Actions → Variables → New variable(s)
+     - Name: `DISCORD_TITLE_TEMPLATE`
+     - Name: `DISCORD_DESCRIPTION_TEMPLATE`
+     - Name: `DISCORD_URL_TEMPLATE`
+   - Placeholders available in all templates:
+     - `{package}`: the npm package name
+     - `{tag}`: the tag being monitored (e.g., `latest`, `beta`)
+     - `{version}`: the resolved version string
+   - Defaults (used if variables are not set):
+     - Title: `📦 {package} ({tag}) updated`
+     - Description: `New version: **{version}**\n\`npm i {package}@{version}\`
+     - URL: `https://www.npmjs.com/package/{package}`
+
+5. Enable workflow runs.
    - The workflow runs every 15 minutes by default.
-   - You can also run it manually: Actions → `npm → Discord` → Run workflow.
+   - You can also run it manually: Actions → `alerter` → Run workflow.
 
 ## How it works
 
@@ -41,13 +55,6 @@ Monitor multiple npm packages and tags and post updates to a Discord channel via
 - Scoped packages (e.g., `@scope/name`) are fully supported.
 - The default schedule is `*/15 * * * *`. Adjust it in `.github/workflows/alerter.yml` if needed.
 
-## Example Discord message
-
-- Title: `📦 <package> (<tag>) updated`
-- Description: `New version: <version>` and a handy `npm i <package>@<version>` snippet
-- Link: npm package page
-
 ## TODO
-1. Make discord message configurable
-2. Make schedule configurable
-3. Add testing
+1. Make schedule configurable
+2. Add testing

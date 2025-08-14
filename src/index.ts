@@ -14,6 +14,9 @@ type PackagesToMonitor = Record<string, string>;
 
 const webhookUrl = process.env.DISCORD_WEBHOOK_URL || '';
 const packagesEnv = process.env.PACKAGES_TO_MONITOR || '';
+const titleTemplateEnv = process.env.DISCORD_TITLE_TEMPLATE || '';
+const descriptionTemplateEnv = process.env.DISCORD_DESCRIPTION_TEMPLATE || '';
+const urlTemplateEnv = process.env.DISCORD_URL_TEMPLATE || '';
 
 if (!webhookUrl) {
   console.error('Missing DISCORD_WEBHOOK_URL');
@@ -63,17 +66,33 @@ async function resolveVersion(pkg: string, tag: string): Promise<string | null> 
 }
 
 /**
+ * Render a simple template by replacing {placeholders} with values from data.
+ */
+function renderTemplate(template: string, data: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => (key in data ? data[key] : `{${key}}`));
+}
+
+const DEFAULT_TITLE_TEMPLATE = '📦 {package} ({tag}) updated';
+const DEFAULT_DESCRIPTION_TEMPLATE = 'New version: **{version}**\n`npm i {package}@{version}`';
+const DEFAULT_URL_TEMPLATE = 'https://www.npmjs.com/package/{package}';
+
+/**
  * Send a Discord message with the package name, tag, and version.
  * Example:
  * "pokebedrock-showdown@latest" -> "1.0.0"
  */
 async function sendDiscord(packageName: string, tag: string, version: string) {
+  const templateData = { package: packageName, tag, version };
+  const title = renderTemplate(titleTemplateEnv || DEFAULT_TITLE_TEMPLATE, templateData);
+  const description = renderTemplate(descriptionTemplateEnv || DEFAULT_DESCRIPTION_TEMPLATE, templateData);
+  const url = renderTemplate(urlTemplateEnv || DEFAULT_URL_TEMPLATE, templateData);
+
   const payload = {
     embeds: [
       {
-        title: `📦 ${packageName} (${tag}) updated`,
-        description: `New version: **${version}**\n\`npm i ${packageName}@${version}\``,
-        url: `https://www.npmjs.com/package/${packageName}`,
+        title,
+        description,
+        url,
         timestamp: new Date().toISOString(),
       },
     ],
