@@ -72,8 +72,8 @@ function renderTemplate(template: string, data: Record<string, string>): string 
   return template.replace(/\{(\w+)\}/g, (_, key) => (key in data ? data[key] : `{${key}}`));
 }
 
-const DEFAULT_TITLE_TEMPLATE = '📦 {package} ({tag}) updated';
-const DEFAULT_DESCRIPTION_TEMPLATE = 'New version: **{version}**\n`npm i {package}@{version}`';
+const DEFAULT_TITLE_TEMPLATE = '[{package}:{tag}] updated to {version}';
+const DEFAULT_DESCRIPTION_TEMPLATE = '`npm i {package}@{version}`';
 const DEFAULT_URL_TEMPLATE = 'https://www.npmjs.com/package/{package}';
 
 /**

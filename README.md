@@ -34,8 +34,8 @@ Monitor multiple npm packages and tags and post updates to a Discord channel via
      - `{tag}`: the tag being monitored (e.g., `latest`, `beta`)
      - `{version}`: the resolved version string
    - Defaults (used if variables are not set):
-     - Title: `📦 {package} ({tag}) updated`
-     - Description: `New version: **{version}**\n\`npm i {package}@{version}\`
+     - Title: `[{package}:{tag}] updated to {version}`
+     - Description: `\`npm i {package}@{version}\``
      - URL: `https://www.npmjs.com/package/{package}`
 
 5. Enable workflow runs.
