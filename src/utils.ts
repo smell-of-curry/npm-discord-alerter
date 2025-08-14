@@ -2,13 +2,15 @@ import path from "path";
 import fs from "fs";
 import { NpmRegistryPackageResponse, NpmRegistryPackageVersion } from "./types";
 import {
+  DEFAULT_AVATAR_URL,
   DEFAULT_DESCRIPTION_TEMPLATE,
   DEFAULT_TITLE_TEMPLATE,
   DEFAULT_URL_TEMPLATE,
-  webhookUrl,
-} from ".";
+  DEFAULT_USERNAME,
+} from "./config";
 import npmUser from "npm-user";
 import axios from "axios";
+import { webhookUrl } from "./index";
 
 /**
  * Convert a package name and tag to a state file name.
@@ -85,11 +87,12 @@ export async function sendDiscord(
   if (!authorIconUrl && npmUserData?.github) {
     authorIconUrl = `https://avatars.githubusercontent.com/u/${npmUserName}?v=4`;
   } else if (!authorIconUrl) {
-    authorIconUrl =
-      "https://raw.githubusercontent.com/smell-of-curry/npm-discord-alerter/refs/heads/main/images/npm-logo.png";
+    authorIconUrl = DEFAULT_AVATAR_URL;
   }
 
   const payload = {
+    username: DEFAULT_USERNAME,
+    avatar_url: DEFAULT_AVATAR_URL,
     embeds: [
       {
         author: {

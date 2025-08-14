@@ -1,23 +1,15 @@
 import axios from "axios";
 import fs from "fs";
 import { resolveVersion, sendDiscord, toStateFileName } from "./utils";
-import type {
-  NpmRegistryPackageResponse,
-  PackagesToMonitor,
-} from "./types";
+import type { NpmRegistryPackageResponse, PackagesToMonitor } from "./types";
 
-export const DEFAULT_TITLE_TEMPLATE = "[{package}:{tag}] updated to {version}";
-export const DEFAULT_DESCRIPTION_TEMPLATE = "`npm i {package}@{version}`";
-export const DEFAULT_URL_TEMPLATE = "https://www.npmjs.com/package/{package}";
 export const webhookUrl = process.env.DISCORD_WEBHOOK_URL || "";
-const packagesEnv = process.env.PACKAGES_TO_MONITOR || "";
-
-
 if (!webhookUrl) {
   console.error("Missing DISCORD_WEBHOOK_URL");
   process.exit(1);
 }
 
+export const packagesEnv = process.env.PACKAGES_TO_MONITOR || "";
 if (!packagesEnv) {
   console.error("Missing PACKAGES_TO_MONITOR");
   process.exit(1);
