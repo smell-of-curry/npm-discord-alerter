@@ -45,13 +45,14 @@ async function main() {
         ? fs.readFileSync(stateFile, "utf8")
         : "none";
       if (last !== version) {
-        fs.writeFileSync(stateFile, version);
         await sendDiscord(pkg, tag, data.versions[version]);
         console.log(`Notified for ${pkg}@${tag} -> ${version}`);
         hadChanges = true;
       } else {
         console.log(`No change for ${pkg}@${tag} (still ${version})`);
       }
+      // Always write the current version to ensure the .state artifact exists and stays up to date.
+      fs.writeFileSync(stateFile, version);
     } catch (err) {
       console.error(`Error handling ${pkg}@${tag}:`, err);
     }

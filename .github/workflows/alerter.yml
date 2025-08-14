@@ -45,6 +45,11 @@ jobs:
         run: |
           node dist/index.js
 
+      - name: Show state directory
+        if: always()
+        run: |
+          echo "State files:" && ls -la .state || echo ".state not found"
+
       - name: Upload state artifact
         uses: actions/upload-artifact@v4
         with:
