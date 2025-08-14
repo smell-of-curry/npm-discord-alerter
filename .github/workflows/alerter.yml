@@ -1,4 +1,4 @@
-name: npm → Discord
+name: alerter
 on:
   schedule:
     - cron: "*/15 * * * *"
@@ -41,3 +41,4 @@ jobs:
             git push
           else
             echo "No state changes to commit."
+          fi
