@@ -48,13 +48,6 @@ Monitor multiple npm packages and tags and post updates to a Discord channel via
 - For each `package@tag` in `PACKAGES_TO_MONITOR`, the workflow fetches the resolved version from the npm registry and compares it to the last seen version stored in `.state/`.
 - On change, it sends a Discord embed and updates the corresponding `.state/*.txt` file, committing it back to the repository.
 
-## Requirements/notes
-
-- You must provide `DISCORD_WEBHOOK_URL` as a secret and `PACKAGES_TO_MONITOR` as a repository variable.
-- The workflow needs permission to push `.state/` updates. This is already configured via `permissions: contents: write`.
-- Scoped packages (e.g., `@scope/name`) are fully supported.
-- The default schedule is `*/15 * * * *`. Adjust it in `.github/workflows/alerter.yml` if needed.
-
 ## TODO
 1. Make schedule configurable
 2. Add testing
