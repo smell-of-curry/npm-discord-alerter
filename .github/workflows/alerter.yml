@@ -13,10 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Ensure state directory exists
-        run: mkdir -p .state
-
-      - name: Restore previous state artifact (if available)
+      - name: Restore previous state (if available)
+        id: dl
         uses: dawidd6/action-download-artifact@v3
         with:
           workflow: alerter.yml
@@ -24,7 +22,7 @@ jobs:
           name: state
           workflow_conclusion: success
           if_no_artifact_found: warn
-          path: .state
+          path: .
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -45,25 +43,23 @@ jobs:
           DISCORD_TITLE_TEMPLATE: ${{ vars.DISCORD_TITLE_TEMPLATE }}
           DISCORD_DESCRIPTION_TEMPLATE: ${{ vars.DISCORD_DESCRIPTION_TEMPLATE }}
           DISCORD_URL_TEMPLATE: ${{ vars.DISCORD_URL_TEMPLATE }}
+          STATE_PATH: state.json
         run: |
-          node dist/index.js
+          # If an artifact was downloaded, it will contain state.json in the workspace
+          if [ -f state.json ]; then echo "Found previous state.json"; else echo "No previous state"; fi
+          # Write next state to a temp file to avoid truncating the previous state before the process reads it
+          node dist/index.js > next_state.json
+          mv -f next_state.json state.json
 
-      - name: Show state directory
+      - name: Show generated state
         if: always()
         run: |
-          echo "State files:" && ls -la .state || echo ".state not found"
-
-      - name: Verify files before upload
-        if: always()
-        run: |
-          echo "Verifying .state contents" && find .state -type f -maxdepth 2 -print || true
+          echo "state.json (exists?):" && test -f state.json && cat state.json || echo "state.json missing"
 
       - name: Upload state artifact
         uses: actions/upload-artifact@v4
         with:
           name: state
-          path: |
-            ./.state/*
-            ./.state/**
+          path: state.json
           if-no-files-found: ignore
           retention-days: 90

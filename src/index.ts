@@ -1,6 +1,6 @@
 import axios from "axios";
 import fs from "fs";
-import { resolveVersion, sendDiscord, toStateFileName } from "./utils";
+import { resolveVersion, sendDiscord } from "./utils";
 import type { NpmRegistryPackageResponse, PackagesToMonitor } from "./types";
 
 export const webhookUrl = process.env.DISCORD_WEBHOOK_URL || "";
@@ -27,6 +27,19 @@ try {
  * Main function to monitor the packages and send Discord messages.
  */
 async function main() {
+  // Load previous state if provided
+  const statePath = process.env.STATE_PATH || "state.json";
+  let previousState: Record<string, string> = {};
+  if (fs.existsSync(statePath)) {
+    try {
+      previousState = JSON.parse(fs.readFileSync(statePath, "utf8"));
+    } catch {
+      console.warn(`Failed to parse existing state at ${statePath}; starting fresh`);
+      previousState = {};
+    }
+  }
+
+  const nextState: Record<string, string> = { ...previousState };
   let hadChanges = false;
   for (const [pkg, tag] of Object.entries(packagesToMonitor)) {
     try {
@@ -40,10 +53,8 @@ async function main() {
         console.warn(`Could not resolve ${pkg}@${tag}`);
         continue;
       }
-      const stateFile = toStateFileName(pkg, tag);
-      const last = fs.existsSync(stateFile)
-        ? fs.readFileSync(stateFile, "utf8")
-        : "none";
+      const key = `${pkg}@${tag}`;
+      const last = previousState[key] || "none";
       if (last !== version) {
         await sendDiscord(pkg, tag, data.versions[version]);
         console.log(`Notified for ${pkg}@${tag} -> ${version}`);
@@ -51,8 +62,7 @@ async function main() {
       } else {
         console.log(`No change for ${pkg}@${tag} (still ${version})`);
       }
-      // Always write the current version to ensure the .state artifact exists and stays up to date.
-      fs.writeFileSync(stateFile, version);
+      nextState[key] = version;
     } catch (err) {
       console.error(`Error handling ${pkg}@${tag}:`, err);
     }
@@ -60,6 +70,8 @@ async function main() {
   if (!hadChanges) {
     console.log("No updates detected.");
   }
+  // Emit the updated state to STDOUT so the workflow can capture and archive it
+  process.stdout.write(JSON.stringify(nextState, null, 2));
 }
 
 main().catch((e) => {
