@@ -57,7 +57,6 @@ async function main() {
       const last = previousState[key] || "none";
       if (last !== version) {
         await sendDiscord(pkg, tag, data.versions[version]);
-        console.log(`Notified for ${pkg}@${tag} -> ${version}`);
         hadChanges = true;
       } else {
         console.log(`No change for ${pkg}@${tag} (still ${version})`);
