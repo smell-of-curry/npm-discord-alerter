@@ -49,6 +49,11 @@ jobs:
           if [ -f state.json ]; then echo "Found previous state.json"; else echo "No previous state"; fi
           # Write next state to a temp file to avoid truncating the previous state before the process reads it
           node dist/index.js > next_state.txt
+          # Check if next_state.txt == "No updates detected."
+          if [ "$(cat next_state.txt)" == "No updates detected." ]; then
+            echo "No updates detected."
+            exit 0
+          fi
           # Check if next_state.txt is valid JSON
           if ! jq -e . next_state.txt >/dev/null 2>&1; then
             echo "next_state.txt is not valid JSON"
