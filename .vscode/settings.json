@@ -1,6 +1,12 @@
 {
-    "cSpell.words": [
-        "keyid",
-        "pokebedrock"
-    ]
+  "eslint.validate": ["typescript"],
+  "eslint.run": "onSave",
+  "editor.formatOnSave": true,
+  "typescript.validate.enable": true,
+  "files.autoSave": "off",
+  "files.eol": "\n",
+  "cSpell.words": ["keyid", "pokebedrock"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }

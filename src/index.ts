@@ -65,7 +65,7 @@ async function main() {
       throw new Error(`Error handling ${pkg}@${tag}: ${err}`);
     }
   }
-  
+
   if (!hadChanges) {
     console.log("No updates detected.");
   } else {
