@@ -48,8 +48,13 @@ jobs:
           # If an artifact was downloaded, it will contain state.json in the workspace
           if [ -f state.json ]; then echo "Found previous state.json"; else echo "No previous state"; fi
           # Write next state to a temp file to avoid truncating the previous state before the process reads it
-          node dist/index.js > next_state.json
-          mv -f next_state.json state.json
+          node dist/index.js > next_state.txt
+          # Check if next_state.txt is valid JSON
+          if ! jq -e . next_state.txt >/dev/null 2>&1; then
+            echo "next_state.txt is not valid JSON"
+            exit 1
+          fi
+          mv -f next_state.txt state.json
 
       - name: Show generated state
         if: always()
@@ -62,4 +67,4 @@ jobs:
           name: state
           path: state.json
           if-no-files-found: ignore
-          retention-days: 90
+          retention-days: 1

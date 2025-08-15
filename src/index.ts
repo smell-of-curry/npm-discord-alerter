@@ -34,7 +34,9 @@ async function main() {
     try {
       previousState = JSON.parse(fs.readFileSync(statePath, "utf8"));
     } catch {
-      console.warn(`Failed to parse existing state at ${statePath}; starting fresh`);
+      console.warn(
+        `Failed to parse existing state at ${statePath}; starting fresh`
+      );
       previousState = {};
     }
   }
@@ -48,29 +50,28 @@ async function main() {
       const { data } = await axios.get<NpmRegistryPackageResponse>(url, {
         timeout: 15000,
       });
+
       const version = await resolveVersion(data, tag);
-      if (!version) {
-        console.warn(`Could not resolve ${pkg}@${tag}`);
-        continue;
-      }
+      if (!version) throw new Error(`Could not resolve ${pkg}@${tag}`);
+
       const key = `${pkg}@${tag}`;
       const last = previousState[key] || "none";
       if (last !== version) {
         await sendDiscord(pkg, tag, data.versions[version]);
         hadChanges = true;
-      } else {
-        console.log(`No change for ${pkg}@${tag} (still ${version})`);
       }
       nextState[key] = version;
     } catch (err) {
-      console.error(`Error handling ${pkg}@${tag}:`, err);
+      throw new Error(`Error handling ${pkg}@${tag}: ${err}`);
     }
   }
+  
   if (!hadChanges) {
     console.log("No updates detected.");
+  } else {
+    // Emit the updated state to STDOUT so the workflow can capture and archive it
+    process.stdout.write(JSON.stringify(nextState, null, 2));
   }
-  // Emit the updated state to STDOUT so the workflow can capture and archive it
-  process.stdout.write(JSON.stringify(nextState, null, 2));
 }
 
 main().catch((e) => {
