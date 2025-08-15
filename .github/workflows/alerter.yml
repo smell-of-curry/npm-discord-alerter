@@ -46,7 +46,7 @@ jobs:
           DISCORD_URL_TEMPLATE: ${{ vars.DISCORD_URL_TEMPLATE }}
           STATE_PATH: state.json
         run: |
-          echo "should_upload=false" >> "$GITHUB_OUTPUT"
+          echo "state_changed=false" >> "$GITHUB_OUTPUT"
           # If an artifact was downloaded, it will contain state.json in the workspace
           if [ -f state.json ]; then echo "Found previous state.json"; else echo "No previous state"; fi
           # Write next state to a temp file to avoid truncating the previous state before the process reads it
@@ -61,16 +61,15 @@ jobs:
             echo "next_state.txt is not valid JSON"
             exit 1
           fi
-          echo "should_upload=true" >> "$GITHUB_OUTPUT"
+          echo "state_changed=true" >> "$GITHUB_OUTPUT"
           mv -f next_state.txt state.json
 
-      - name: Show generated state
-        if: ${{ steps.monitor.outputs.should_upload == 'true' }}
+      - name: Show updated state
+        if: ${{ steps.monitor.outputs.state_changed == 'true' }}
         run: |
-          echo "state.json (exists?):" && test -f state.json && cat state.json || echo "state.json missing"
+          echo "state.json:" && test -f state.json && cat state.json || echo "state.json missing"
 
       - name: Upload state artifact
-        if: ${{ steps.monitor.outputs.should_upload == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: state
