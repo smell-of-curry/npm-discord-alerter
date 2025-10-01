@@ -1,6 +1,11 @@
 import path from "path";
 import fs from "fs";
-import { NpmRegistryPackageResponse, NpmRegistryPackageVersion } from "./types";
+import npmUser from "npm-user";
+import axios from "axios";
+import type {
+  NpmRegistryPackageResponse,
+  NpmRegistryPackageVersion,
+} from "./types";
 import {
   DEFAULT_AVATAR_URL,
   DEFAULT_DESCRIPTION_TEMPLATE,
@@ -8,8 +13,6 @@ import {
   DEFAULT_URL_TEMPLATE,
   DEFAULT_USERNAME,
 } from "./config";
-import npmUser from "npm-user";
-import axios from "axios";
 import { webhookUrl } from "./index";
 
 /**
@@ -81,7 +84,17 @@ export async function sendDiscord(
   );
 
   const npmUserName = version._npmUser?.name;
-  const npmUserData = npmUserName ? await npmUser(npmUserName) : null;
+  let npmUserData = null as Awaited<ReturnType<typeof npmUser>> | null;
+  if (npmUserName) {
+    try {
+      npmUserData = await npmUser(npmUserName);
+    } catch (error) {
+      console.warn(
+        `Failed to fetch npm profile for ${npmUserName}; using defaults: ${error}`
+      );
+      npmUserData = null;
+    }
+  }
 
   let authorIconUrl = npmUserData?.avatar;
   if (!authorIconUrl && npmUserData?.github) {

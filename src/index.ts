@@ -1,5 +1,5 @@
-import axios from "axios";
 import fs from "fs";
+import axios from "axios";
 import { resolveVersion, sendDiscord } from "./utils";
 import type { NpmRegistryPackageResponse, PackagesToMonitor } from "./types";
 
@@ -62,7 +62,8 @@ async function main() {
       }
       nextState[key] = version;
     } catch (err) {
-      throw new Error(`Error handling ${pkg}@${tag}: ${err}`);
+      console.warn(`Warning: Error handling ${pkg}@${tag}: ${err}`);
+      continue;
     }
   }
 
