@@ -57,7 +57,10 @@ async function main() {
       const key = `${pkg}@${tag}`;
       const last = previousState[key] || "none";
       if (last !== version) {
-        await sendDiscord(pkg, tag, data.versions[version]);
+        const versionInfo = data.versions[version];
+        if (!versionInfo)
+          throw new Error(`No version metadata found for ${pkg}@${version}`);
+        await sendDiscord(pkg, tag, versionInfo);
         hadChanges = true;
       }
       nextState[key] = version;
